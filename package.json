@@ -1,5 +1,5 @@
 {
-  "name": "@leanix/tailwind-datepicker",
+  "name": "@carlos-rincones-leanix/tailwind-datepicker",
   "version": "1.1.0",
   "description": "A Tailwind CSS powered datepicker built with vanilla JavaScript.",
   "module": "js/main.js",
