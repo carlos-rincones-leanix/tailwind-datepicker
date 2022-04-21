@@ -1,7 +1,7 @@
-import {hasProperty, pushUnique, createTagRepeat} from '../../lib/utils.js';
-import {dateValue} from '../../lib/date.js';
-import {parseHTML} from '../../lib/dom.js';
-import View from './View.js';
+import { hasProperty, pushUnique, createTagRepeat } from "../../lib/utils.js";
+import { dateValue } from "../../lib/date.js";
+import { parseHTML } from "../../lib/dom.js";
+import View from "./View.js";
 
 function computeMonthRange(range, thisYear) {
   if (!range || !range[0] || !range[1]) {
@@ -12,26 +12,31 @@ function computeMonthRange(range, thisYear) {
   if (startY > thisYear || endY < thisYear) {
     return;
   }
-  return [
-    startY === thisYear ? startM : -1,
-    endY === thisYear ? endM : 12,
-  ];
+  return [startY === thisYear ? startM : -1, endY === thisYear ? endM : 12];
 }
 
 export default class MonthsView extends View {
   constructor(picker) {
     super(picker, {
       id: 1,
-      name: 'months',
-      cellClass: 'month',
+      name: "months",
+      cellClass: "month",
     });
   }
 
   init(options, onConstruction = true) {
     if (onConstruction) {
       this.grid = this.element;
-      this.element.classList.add('months', 'datepicker-grid', 'w-64', 'grid', 'grid-cols-4');
-      this.grid.appendChild(parseHTML(createTagRepeat('span', 12, {'data-month': ix => ix})));
+      this.element.classList.add(
+        "months",
+        "datepicker-grid",
+        "w-64",
+        "grid",
+        "grid-cols-4"
+      );
+      this.grid.appendChild(
+        parseHTML(createTagRepeat("span", 12, { "data-month": (ix) => ix }))
+      );
     }
     super.init(options);
   }
@@ -40,7 +45,7 @@ export default class MonthsView extends View {
     if (options.locale) {
       this.monthNames = options.locale.monthsShort;
     }
-    if (hasProperty(options, 'minDate')) {
+    if (hasProperty(options, "minDate")) {
       if (options.minDate === undefined) {
         this.minYear = this.minMonth = this.minDate = undefined;
       } else {
@@ -50,7 +55,7 @@ export default class MonthsView extends View {
         this.minDate = minDateObj.setDate(1);
       }
     }
-    if (hasProperty(options, 'maxDate')) {
+    if (hasProperty(options, "maxDate")) {
       if (options.maxDate === undefined) {
         this.maxYear = this.maxMonth = this.maxDate = undefined;
       } else {
@@ -61,9 +66,10 @@ export default class MonthsView extends View {
       }
     }
     if (options.beforeShowMonth !== undefined) {
-      this.beforeShow = typeof options.beforeShowMonth === 'function'
-        ? options.beforeShowMonth
-        : undefined;
+      this.beforeShow =
+        typeof options.beforeShowMonth === "function"
+          ? options.beforeShowMonth
+          : undefined;
     }
   }
 
@@ -76,7 +82,7 @@ export default class MonthsView extends View {
 
   // Update view's settings to reflect the selected dates
   updateSelection() {
-    const {dates, rangepicker} = this.picker.datepicker;
+    const { dates, rangepicker } = this.picker.datepicker;
     this.selected = dates.reduce((selected, timeValue) => {
       const date = new Date(timeValue);
       const year = date.getFullYear();
@@ -88,8 +94,8 @@ export default class MonthsView extends View {
       }
       return selected;
     }, {});
-    if (rangepicker && rangepicker.dates) {
-      this.range = rangepicker.dates.map(timeValue => {
+    if (this.picker.datepicker && this.picker.datepicker.dates) {
+      this.range = this.picker.datepicker.dates.map((timeValue) => {
         const date = new Date(timeValue);
         return isNaN(date) ? undefined : [date.getFullYear(), date.getMonth()];
       });
@@ -125,30 +131,41 @@ export default class MonthsView extends View {
       el.textContent = this.monthNames[index];
 
       if (
-        yrOutOfRange
-        || isMinYear && index < this.minMonth
-        || isMaxYear && index > this.maxMonth
+        yrOutOfRange ||
+        (isMinYear && index < this.minMonth) ||
+        (isMaxYear && index > this.maxMonth)
       ) {
-        classList.add('disabled');
+        classList.add("disabled");
       }
       if (range) {
         const [rangeStart, rangeEnd] = range;
         if (index > rangeStart && index < rangeEnd) {
-          classList.add('range');
+          classList.add("range");
         }
         if (index === rangeStart) {
-          classList.add('range-start');
+          classList.add("range-start");
         }
         if (index === rangeEnd) {
-          classList.add('range-end');
+          classList.add("range-end");
         }
       }
       if (selected.includes(index)) {
-        classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-        classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+        classList.add(
+          "selected",
+          "bg-blue-700",
+          "text-white",
+          "dark:bg-blue-600",
+          "dark:text-white"
+        );
+        classList.remove(
+          "text-gray-900",
+          "hover:bg-gray-100",
+          "dark:text-white",
+          "dark:hover:bg-gray-600"
+        );
       }
       if (index === this.focused) {
-        classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+        classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
       }
 
       if (this.beforeShow) {
@@ -160,39 +177,72 @@ export default class MonthsView extends View {
   // Update the view UI by applying the changes of selected and focused items
   refresh() {
     const selected = this.selected[this.year] || [];
-    const [rangeStart, rangeEnd] = computeMonthRange(this.range, this.year) || [];
+    const [rangeStart, rangeEnd] =
+      computeMonthRange(this.range, this.year) || [];
     this.grid
-      .querySelectorAll('.range, .range-start, .range-end, .selected, .focused')
+      .querySelectorAll(".range, .range-start, .range-end, .selected, .focused")
       .forEach((el) => {
-        el.classList.remove('range', 'range-start', 'range-end', 'selected', 'bg-blue-700', 'dark:bg-blue-600', 'dark:text-white', 'text-white', 'focused', 'bg-gray-100', 'dark:bg-gray-600');
-        el.classList.add('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+        el.classList.remove(
+          "range",
+          "range-start",
+          "range-end",
+          "selected",
+          "bg-blue-700",
+          "dark:bg-blue-600",
+          "dark:text-white",
+          "text-white",
+          "focused",
+          "bg-gray-100",
+          "dark:bg-gray-600"
+        );
+        el.classList.add(
+          "text-gray-900",
+          "hover:bg-gray-100",
+          "dark:text-white",
+          "dark:hover:bg-gray-600"
+        );
       });
     Array.from(this.grid.children).forEach((el, index) => {
       const classList = el.classList;
       if (index > rangeStart && index < rangeEnd) {
-        classList.add('range');
+        classList.add("range");
       }
       if (index === rangeStart) {
-        classList.add('range-start');
+        classList.add("range-start");
       }
       if (index === rangeEnd) {
-        classList.add('range-end');
+        classList.add("range-end");
       }
       if (selected.includes(index)) {
-        classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-        classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+        classList.add(
+          "selected",
+          "bg-blue-700",
+          "text-white",
+          "dark:bg-blue-600",
+          "dark:text-white"
+        );
+        classList.remove(
+          "text-gray-900",
+          "hover:bg-gray-100",
+          "dark:text-white",
+          "dark:hover:bg-gray-600"
+        );
       }
       if (index === this.focused) {
-        classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+        classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
       }
     });
   }
 
   // Update the view UI by applying the change of focused item
   refreshFocus() {
-    this.grid.querySelectorAll('.focused').forEach((el) => {
-      el.classList.remove('focused', 'bg-gray-100'), 'dark:bg-gray-600';
+    this.grid.querySelectorAll(".focused").forEach((el) => {
+      el.classList.remove("focused", "bg-gray-100"), "dark:bg-gray-600";
     });
-    this.grid.children[this.focused].classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+    this.grid.children[this.focused].classList.add(
+      "focused",
+      "bg-gray-100",
+      "dark:bg-gray-600"
+    );
   }
 }

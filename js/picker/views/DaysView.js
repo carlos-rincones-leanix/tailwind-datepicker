@@ -1,17 +1,24 @@
-import {hasProperty, pushUnique} from '../../lib/utils.js';
-import {today, dateValue, addDays, addWeeks, dayOfTheWeekOf, getWeek} from '../../lib/date.js';
-import {formatDate} from '../../lib/date-format.js';
-import {parseHTML, showElement, hideElement} from '../../lib/dom.js';
-import daysTemplate from '../templates/daysTemplate.js';
-import calendarWeeksTemplate from '../templates/calendarWeeksTemplate.js';
-import View from './View.js';
+import { hasProperty, pushUnique } from "../../lib/utils.js";
+import {
+  today,
+  dateValue,
+  addDays,
+  addWeeks,
+  dayOfTheWeekOf,
+  getWeek,
+} from "../../lib/date.js";
+import { formatDate } from "../../lib/date-format.js";
+import { parseHTML, showElement, hideElement } from "../../lib/dom.js";
+import daysTemplate from "../templates/daysTemplate.js";
+import calendarWeeksTemplate from "../templates/calendarWeeksTemplate.js";
+import View from "./View.js";
 
 export default class DaysView extends View {
   constructor(picker) {
     super(picker, {
       id: 0,
-      name: 'days',
-      cellClass: 'day',
+      name: "days",
+      cellClass: "day",
     });
   }
 
@@ -28,10 +35,10 @@ export default class DaysView extends View {
   setOptions(options) {
     let updateDOW;
 
-    if (hasProperty(options, 'minDate')) {
+    if (hasProperty(options, "minDate")) {
       this.minDate = options.minDate;
     }
-    if (hasProperty(options, 'maxDate')) {
+    if (hasProperty(options, "maxDate")) {
       this.maxDate = options.maxDate;
     }
     if (options.datesDisabled) {
@@ -53,15 +60,16 @@ export default class DaysView extends View {
       updateDOW = true;
     }
     if (options.locale) {
-      const locale = this.locale = options.locale;
+      const locale = (this.locale = options.locale);
       this.dayNames = locale.daysMin;
       this.switchLabelFormat = locale.titleFormat;
       updateDOW = true;
     }
     if (options.beforeShowDay !== undefined) {
-      this.beforeShow = typeof options.beforeShowDay === 'function'
-        ? options.beforeShowDay
-        : undefined;
+      this.beforeShow =
+        typeof options.beforeShowDay === "function"
+          ? options.beforeShowDay
+          : undefined;
     }
 
     if (options.calendarWeeks !== undefined) {
@@ -97,7 +105,9 @@ export default class DaysView extends View {
       Array.from(this.dow.children).forEach((el, index) => {
         const dow = (this.weekStart + index) % 7;
         el.textContent = this.dayNames[dow];
-        el.className = this.daysOfWeekDisabled.includes(dow) ? 'dow disabled text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'dow text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400';
+        el.className = this.daysOfWeekDisabled.includes(dow)
+          ? "dow disabled text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400 cursor-not-allowed"
+          : "dow text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400";
       });
     }
   }
@@ -118,14 +128,21 @@ export default class DaysView extends View {
 
   // Apply update on the selected dates to view's settings
   updateSelection() {
-    const {dates, rangepicker} = this.picker.datepicker;
+    const { dates } = this.picker.datepicker;
     this.selected = dates;
-    if (rangepicker) {
-      this.range = rangepicker.dates;
+
+    if (
+      this.picker.datepicker &&
+      this.picker.datepicker.dates &&
+      this.picker.datepicker.dates.length > 0
+    ) {
+      this.range = this.picker.datepicker.dates;
+    } else {
+      this.range = [];
     }
   }
 
-   // Update the entire view UI
+  // Update the entire view UI
   render() {
     // update today marker on ever render
     this.today = this.todayHighlight ? today() : undefined;
@@ -133,7 +150,11 @@ export default class DaysView extends View {
     // by beforeShow hook at previous render
     this.disabled = [...this.datesDisabled];
 
-    const switchLabel = formatDate(this.focused, this.switchLabelFormat, this.locale);
+    const switchLabel = formatDate(
+      this.focused,
+      this.switchLabelFormat,
+      this.locale
+    );
     this.picker.setViewSwitchLabel(switchLabel);
     this.picker.setPrevBtnDisabled(this.first <= this.minDate);
     this.picker.setNextBtnDisabled(this.last >= this.maxDate);
@@ -156,44 +177,75 @@ export default class DaysView extends View {
       el.textContent = date.getDate();
 
       if (current < this.first) {
-        classList.add('prev', 'text-gray-500', 'dark:text-white');
+        classList.add("prev", "text-gray-500", "dark:text-white");
       } else if (current > this.last) {
-        classList.add('next', 'text-gray-500', 'dark:text-white');
+        classList.add("next", "text-gray-500", "dark:text-white");
       }
       if (this.today === current) {
-        classList.add('today', 'bg-gray-100', 'dark:bg-gray-600', 'dark:bg-gray-600');
+        classList.add(
+          "today",
+          "bg-gray-100",
+          "dark:bg-gray-600",
+          "dark:bg-gray-600"
+        );
       }
-      if (current < this.minDate || current > this.maxDate || this.disabled.includes(current)) {
-        classList.add('disabled', 'cursor-not-allowed');
+      if (
+        current < this.minDate ||
+        current > this.maxDate ||
+        this.disabled.includes(current)
+      ) {
+        classList.add("disabled", "cursor-not-allowed");
       }
       if (this.daysOfWeekDisabled.includes(day)) {
-        classList.add('disabled', 'cursor-not-allowed');
+        classList.add("disabled", "cursor-not-allowed");
         pushUnique(this.disabled, current);
       }
       if (this.daysOfWeekHighlighted.includes(day)) {
-        classList.add('highlighted');
+        classList.add("highlighted");
       }
       if (this.range) {
         const [rangeStart, rangeEnd] = this.range;
         if (current > rangeStart && current < rangeEnd) {
-          classList.add('range', 'bg-gray-200', 'dark:bg-gray-600');
-          classList.remove('rounded-lg', 'rounded-l-lg', 'rounded-r-lg')
+          classList.add("range", "bg-gray-200", "dark:bg-gray-600");
+          classList.remove("rounded-lg", "rounded-l-lg", "rounded-r-lg");
         }
         if (current === rangeStart) {
-          classList.add('range-start', 'bg-gray-100', 'dark:bg-gray-600', 'rounded-l-lg');
-          classList.remove('rounded-lg', 'rounded-r-lg');
+          classList.add(
+            "range-start",
+            "bg-gray-100",
+            "dark:bg-gray-600",
+            "rounded-l-lg"
+          );
+          classList.remove("rounded-lg", "rounded-r-lg");
         }
         if (current === rangeEnd) {
-          classList.add('range-end', 'bg-gray-100', 'dark:bg-gray-600', 'rounded-r-lg');
-          classList.remove('rounded-lg', 'rounded-l-lg');
+          classList.add(
+            "range-end",
+            "bg-gray-100",
+            "dark:bg-gray-600",
+            "rounded-r-lg"
+          );
+          classList.remove("rounded-lg", "rounded-l-lg");
         }
       }
       if (this.selected.includes(current)) {
-        classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-        classList.remove('text-gray-900', 'text-gray-500', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+        classList.add(
+          "selected",
+          "bg-blue-700",
+          "text-white",
+          "dark:bg-blue-600",
+          "dark:text-white"
+        );
+        classList.remove(
+          "text-gray-900",
+          "text-gray-500",
+          "hover:bg-gray-100",
+          "dark:text-white",
+          "dark:hover:bg-gray-600"
+        );
       }
       if (current === this.focused) {
-        classList.add('focused');
+        classList.add("focused");
       }
 
       if (this.beforeShow) {
@@ -205,33 +257,71 @@ export default class DaysView extends View {
   // Update the view UI by applying the changes of selected and focused items
   refresh() {
     const [rangeStart, rangeEnd] = this.range || [];
+    if (!rangeEnd) {
+      this.grid.querySelectorAll(".bg-gray-200").forEach((element) => {
+        element.classList.remove("bg-gray-200");
+      });
+    }
     this.grid
-      .querySelectorAll('.range, .range-start, .range-end, .selected, .focused')
+      .querySelectorAll(".range, .range-start, .range-end, .selected, .focused")
       .forEach((el) => {
-        el.classList.remove('range', 'range-start', 'range-end', 'selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white', 'focused', 'bg-gray-100', 'dark:bg-gray-600');
-        el.classList.add('text-gray-900', 'rounded-lg', 'dark:text-white');
+        el.classList.remove(
+          "range",
+          "range-start",
+          "range-end",
+          "selected",
+          "bg-blue-700",
+          "text-white",
+          "dark:bg-blue-600",
+          "dark:text-white",
+          "focused",
+          "bg-gray-100",
+          "dark:bg-gray-600"
+        );
+        el.classList.add("text-gray-900", "rounded-lg", "dark:text-white");
       });
     Array.from(this.grid.children).forEach((el) => {
       const current = Number(el.dataset.date);
       const classList = el.classList;
       if (current > rangeStart && current < rangeEnd) {
-        classList.add('range', 'bg-gray-200', 'dark:bg-gray-600');
-        classList.remove('rounded-lg');
+        classList.add("range", "bg-gray-200", "dark:bg-gray-600");
+        classList.remove("rounded-lg");
       }
       if (current === rangeStart) {
-        classList.add('range-start', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-l-lg');
-        classList.remove('rounded-lg', 'rounded-r-lg');
+        classList.add(
+          "range-start",
+          "bg-gray-200",
+          "dark:bg-gray-600",
+          "rounded-l-lg"
+        );
+        classList.remove("rounded-lg", "rounded-r-lg");
       }
       if (current === rangeEnd) {
-        classList.add('range-end', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-r-lg');
-        classList.remove('rounded-lg', 'rounded-l-lg');
+        classList.add(
+          "range-end",
+          "bg-gray-200",
+          "dark:bg-gray-600",
+          "rounded-r-lg"
+        );
+        classList.remove("rounded-lg", "rounded-l-lg");
       }
       if (this.selected.includes(current)) {
-        classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-        classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+        classList.add(
+          "selected",
+          "bg-blue-700",
+          "text-white",
+          "dark:bg-blue-600",
+          "dark:text-white"
+        );
+        classList.remove(
+          "text-gray-900",
+          "hover:bg-gray-100",
+          "dark:text-white",
+          "dark:hover:bg-gray-600"
+        );
       }
       if (current === this.focused) {
-        classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+        classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
       }
     });
   }
@@ -239,9 +329,13 @@ export default class DaysView extends View {
   // Update the view UI by applying the change of focused item
   refreshFocus() {
     const index = Math.round((this.focused - this.start) / 86400000);
-    this.grid.querySelectorAll('.focused').forEach((el) => {
-      el.classList.remove('focused', 'bg-gray-100', 'dark:bg-gray-600');
+    this.grid.querySelectorAll(".focused").forEach((el) => {
+      el.classList.remove("focused", "bg-gray-100", "dark:bg-gray-600");
     });
-    this.grid.children[index].classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+    this.grid.children[index].classList.add(
+      "focused",
+      "bg-gray-100",
+      "dark:bg-gray-600"
+    );
   }
 }

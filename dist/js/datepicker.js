@@ -760,7 +760,7 @@ var Datepicker = (function () {
   const pickerTemplate = optimizeTemplateHTML(`<div class="datepicker hidden">
   <div class="datepicker-picker inline-block rounded-lg bg-white dark:bg-gray-700 shadow-lg p-4">
     <div class="datepicker-header">
-      <div class="datepicker-title bg-white dark:bg-gray-700 px-2 py-3 text-center font-semibold"></div>
+      <div class="datepicker-title bg-white dark:bg-gray-700 dark:text-white px-2 py-3 text-center font-semibold"></div>
       <div class="datepicker-controls flex justify-between mb-2">
         <button type="button" class="bg-white dark:bg-gray-700 rounded-lg text-gray-500 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 prev-btn"></button>
         <button type="button" class="text-sm rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 font-semibold py-2.5 px-5 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200 view-switch"></button>
@@ -771,7 +771,7 @@ var Datepicker = (function () {
     <div class="datepicker-footer">
       <div class="datepicker-controls flex space-x-2 mt-2">
         <button type="button" class="%buttonClass% today-btn text-white bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 text-center w-1/2"></button>
-        <button type="button" class="%buttonClass% clear-btn text-gray-900 dark:text-white bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 text-center w-1/2"></button>
+        <button type="button" class="%buttonClass% clear-btn text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 text-center w-1/2"></button>
       </div>
     </div>
   </div>
@@ -844,8 +844,8 @@ var Datepicker = (function () {
     constructor(picker) {
       super(picker, {
         id: 0,
-        name: 'days',
-        cellClass: 'day',
+        name: "days",
+        cellClass: "day",
       });
     }
 
@@ -862,10 +862,10 @@ var Datepicker = (function () {
     setOptions(options) {
       let updateDOW;
 
-      if (hasProperty(options, 'minDate')) {
+      if (hasProperty(options, "minDate")) {
         this.minDate = options.minDate;
       }
-      if (hasProperty(options, 'maxDate')) {
+      if (hasProperty(options, "maxDate")) {
         this.maxDate = options.maxDate;
       }
       if (options.datesDisabled) {
@@ -887,15 +887,16 @@ var Datepicker = (function () {
         updateDOW = true;
       }
       if (options.locale) {
-        const locale = this.locale = options.locale;
+        const locale = (this.locale = options.locale);
         this.dayNames = locale.daysMin;
         this.switchLabelFormat = locale.titleFormat;
         updateDOW = true;
       }
       if (options.beforeShowDay !== undefined) {
-        this.beforeShow = typeof options.beforeShowDay === 'function'
-          ? options.beforeShowDay
-          : undefined;
+        this.beforeShow =
+          typeof options.beforeShowDay === "function"
+            ? options.beforeShowDay
+            : undefined;
       }
 
       if (options.calendarWeeks !== undefined) {
@@ -931,7 +932,9 @@ var Datepicker = (function () {
         Array.from(this.dow.children).forEach((el, index) => {
           const dow = (this.weekStart + index) % 7;
           el.textContent = this.dayNames[dow];
-          el.className = this.daysOfWeekDisabled.includes(dow) ? 'dow disabled text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'dow text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400';
+          el.className = this.daysOfWeekDisabled.includes(dow)
+            ? "dow disabled text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400 cursor-not-allowed"
+            : "dow text-center h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400";
         });
       }
     }
@@ -952,14 +955,21 @@ var Datepicker = (function () {
 
     // Apply update on the selected dates to view's settings
     updateSelection() {
-      const {dates, rangepicker} = this.picker.datepicker;
+      const { dates } = this.picker.datepicker;
       this.selected = dates;
-      if (rangepicker) {
-        this.range = rangepicker.dates;
+
+      if (
+        this.picker.datepicker &&
+        this.picker.datepicker.dates &&
+        this.picker.datepicker.dates.length > 0
+      ) {
+        this.range = this.picker.datepicker.dates;
+      } else {
+        this.range = [];
       }
     }
 
-     // Update the entire view UI
+    // Update the entire view UI
     render() {
       // update today marker on ever render
       this.today = this.todayHighlight ? today() : undefined;
@@ -967,7 +977,11 @@ var Datepicker = (function () {
       // by beforeShow hook at previous render
       this.disabled = [...this.datesDisabled];
 
-      const switchLabel = formatDate(this.focused, this.switchLabelFormat, this.locale);
+      const switchLabel = formatDate(
+        this.focused,
+        this.switchLabelFormat,
+        this.locale
+      );
       this.picker.setViewSwitchLabel(switchLabel);
       this.picker.setPrevBtnDisabled(this.first <= this.minDate);
       this.picker.setNextBtnDisabled(this.last >= this.maxDate);
@@ -990,44 +1004,75 @@ var Datepicker = (function () {
         el.textContent = date.getDate();
 
         if (current < this.first) {
-          classList.add('prev', 'text-gray-500', 'dark:text-white');
+          classList.add("prev", "text-gray-500", "dark:text-white");
         } else if (current > this.last) {
-          classList.add('next', 'text-gray-500', 'dark:text-white');
+          classList.add("next", "text-gray-500", "dark:text-white");
         }
         if (this.today === current) {
-          classList.add('today', 'bg-gray-100', 'dark:bg-gray-600', 'dark:bg-gray-600');
+          classList.add(
+            "today",
+            "bg-gray-100",
+            "dark:bg-gray-600",
+            "dark:bg-gray-600"
+          );
         }
-        if (current < this.minDate || current > this.maxDate || this.disabled.includes(current)) {
-          classList.add('disabled', 'cursor-not-allowed');
+        if (
+          current < this.minDate ||
+          current > this.maxDate ||
+          this.disabled.includes(current)
+        ) {
+          classList.add("disabled", "cursor-not-allowed");
         }
         if (this.daysOfWeekDisabled.includes(day)) {
-          classList.add('disabled', 'cursor-not-allowed');
+          classList.add("disabled", "cursor-not-allowed");
           pushUnique(this.disabled, current);
         }
         if (this.daysOfWeekHighlighted.includes(day)) {
-          classList.add('highlighted');
+          classList.add("highlighted");
         }
         if (this.range) {
           const [rangeStart, rangeEnd] = this.range;
           if (current > rangeStart && current < rangeEnd) {
-            classList.add('range', 'bg-gray-200', 'dark:bg-gray-600');
-            classList.remove('rounded-lg', 'rounded-l-lg', 'rounded-r-lg');
+            classList.add("range", "bg-gray-200", "dark:bg-gray-600");
+            classList.remove("rounded-lg", "rounded-l-lg", "rounded-r-lg");
           }
           if (current === rangeStart) {
-            classList.add('range-start', 'bg-gray-100', 'dark:bg-gray-600', 'rounded-l-lg');
-            classList.remove('rounded-lg', 'rounded-r-lg');
+            classList.add(
+              "range-start",
+              "bg-gray-100",
+              "dark:bg-gray-600",
+              "rounded-l-lg"
+            );
+            classList.remove("rounded-lg", "rounded-r-lg");
           }
           if (current === rangeEnd) {
-            classList.add('range-end', 'bg-gray-100', 'dark:bg-gray-600', 'rounded-r-lg');
-            classList.remove('rounded-lg', 'rounded-l-lg');
+            classList.add(
+              "range-end",
+              "bg-gray-100",
+              "dark:bg-gray-600",
+              "rounded-r-lg"
+            );
+            classList.remove("rounded-lg", "rounded-l-lg");
           }
         }
         if (this.selected.includes(current)) {
-          classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-          classList.remove('text-gray-900', 'text-gray-500', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          classList.add(
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white"
+          );
+          classList.remove(
+            "text-gray-900",
+            "text-gray-500",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         }
         if (current === this.focused) {
-          classList.add('focused');
+          classList.add("focused");
         }
 
         if (this.beforeShow) {
@@ -1039,33 +1084,71 @@ var Datepicker = (function () {
     // Update the view UI by applying the changes of selected and focused items
     refresh() {
       const [rangeStart, rangeEnd] = this.range || [];
+      if (!rangeEnd) {
+        this.grid.querySelectorAll(".bg-gray-200").forEach((element) => {
+          element.classList.remove("bg-gray-200");
+        });
+      }
       this.grid
-        .querySelectorAll('.range, .range-start, .range-end, .selected, .focused')
+        .querySelectorAll(".range, .range-start, .range-end, .selected, .focused")
         .forEach((el) => {
-          el.classList.remove('range', 'range-start', 'range-end', 'selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white', 'focused', 'bg-gray-100', 'dark:bg-gray-600');
-          el.classList.add('text-gray-900', 'rounded-lg', 'dark:text-white');
+          el.classList.remove(
+            "range",
+            "range-start",
+            "range-end",
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white",
+            "focused",
+            "bg-gray-100",
+            "dark:bg-gray-600"
+          );
+          el.classList.add("text-gray-900", "rounded-lg", "dark:text-white");
         });
       Array.from(this.grid.children).forEach((el) => {
         const current = Number(el.dataset.date);
         const classList = el.classList;
         if (current > rangeStart && current < rangeEnd) {
-          classList.add('range', 'bg-gray-200', 'dark:bg-gray-600');
-          classList.remove('rounded-lg');
+          classList.add("range", "bg-gray-200", "dark:bg-gray-600");
+          classList.remove("rounded-lg");
         }
         if (current === rangeStart) {
-          classList.add('range-start', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-l-lg');
-          classList.remove('rounded-lg', 'rounded-r-lg');
+          classList.add(
+            "range-start",
+            "bg-gray-200",
+            "dark:bg-gray-600",
+            "rounded-l-lg"
+          );
+          classList.remove("rounded-lg", "rounded-r-lg");
         }
         if (current === rangeEnd) {
-          classList.add('range-end', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-r-lg');
-          classList.remove('rounded-lg', 'rounded-l-lg');
+          classList.add(
+            "range-end",
+            "bg-gray-200",
+            "dark:bg-gray-600",
+            "rounded-r-lg"
+          );
+          classList.remove("rounded-lg", "rounded-l-lg");
         }
         if (this.selected.includes(current)) {
-          classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-          classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          classList.add(
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white"
+          );
+          classList.remove(
+            "text-gray-900",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         }
         if (current === this.focused) {
-          classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+          classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
         }
       });
     }
@@ -1073,10 +1156,14 @@ var Datepicker = (function () {
     // Update the view UI by applying the change of focused item
     refreshFocus() {
       const index = Math.round((this.focused - this.start) / 86400000);
-      this.grid.querySelectorAll('.focused').forEach((el) => {
-        el.classList.remove('focused', 'bg-gray-100', 'dark:bg-gray-600');
+      this.grid.querySelectorAll(".focused").forEach((el) => {
+        el.classList.remove("focused", "bg-gray-100", "dark:bg-gray-600");
       });
-      this.grid.children[index].classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+      this.grid.children[index].classList.add(
+        "focused",
+        "bg-gray-100",
+        "dark:bg-gray-600"
+      );
     }
   }
 
@@ -1089,26 +1176,31 @@ var Datepicker = (function () {
     if (startY > thisYear || endY < thisYear) {
       return;
     }
-    return [
-      startY === thisYear ? startM : -1,
-      endY === thisYear ? endM : 12,
-    ];
+    return [startY === thisYear ? startM : -1, endY === thisYear ? endM : 12];
   }
 
   class MonthsView extends View {
     constructor(picker) {
       super(picker, {
         id: 1,
-        name: 'months',
-        cellClass: 'month',
+        name: "months",
+        cellClass: "month",
       });
     }
 
     init(options, onConstruction = true) {
       if (onConstruction) {
         this.grid = this.element;
-        this.element.classList.add('months', 'datepicker-grid', 'w-64', 'grid', 'grid-cols-4');
-        this.grid.appendChild(parseHTML(createTagRepeat('span', 12, {'data-month': ix => ix})));
+        this.element.classList.add(
+          "months",
+          "datepicker-grid",
+          "w-64",
+          "grid",
+          "grid-cols-4"
+        );
+        this.grid.appendChild(
+          parseHTML(createTagRepeat("span", 12, { "data-month": (ix) => ix }))
+        );
       }
       super.init(options);
     }
@@ -1117,7 +1209,7 @@ var Datepicker = (function () {
       if (options.locale) {
         this.monthNames = options.locale.monthsShort;
       }
-      if (hasProperty(options, 'minDate')) {
+      if (hasProperty(options, "minDate")) {
         if (options.minDate === undefined) {
           this.minYear = this.minMonth = this.minDate = undefined;
         } else {
@@ -1127,7 +1219,7 @@ var Datepicker = (function () {
           this.minDate = minDateObj.setDate(1);
         }
       }
-      if (hasProperty(options, 'maxDate')) {
+      if (hasProperty(options, "maxDate")) {
         if (options.maxDate === undefined) {
           this.maxYear = this.maxMonth = this.maxDate = undefined;
         } else {
@@ -1138,9 +1230,10 @@ var Datepicker = (function () {
         }
       }
       if (options.beforeShowMonth !== undefined) {
-        this.beforeShow = typeof options.beforeShowMonth === 'function'
-          ? options.beforeShowMonth
-          : undefined;
+        this.beforeShow =
+          typeof options.beforeShowMonth === "function"
+            ? options.beforeShowMonth
+            : undefined;
       }
     }
 
@@ -1153,7 +1246,7 @@ var Datepicker = (function () {
 
     // Update view's settings to reflect the selected dates
     updateSelection() {
-      const {dates, rangepicker} = this.picker.datepicker;
+      const { dates, rangepicker } = this.picker.datepicker;
       this.selected = dates.reduce((selected, timeValue) => {
         const date = new Date(timeValue);
         const year = date.getFullYear();
@@ -1165,8 +1258,8 @@ var Datepicker = (function () {
         }
         return selected;
       }, {});
-      if (rangepicker && rangepicker.dates) {
-        this.range = rangepicker.dates.map(timeValue => {
+      if (this.picker.datepicker && this.picker.datepicker.dates) {
+        this.range = this.picker.datepicker.dates.map((timeValue) => {
           const date = new Date(timeValue);
           return isNaN(date) ? undefined : [date.getFullYear(), date.getMonth()];
         });
@@ -1202,30 +1295,41 @@ var Datepicker = (function () {
         el.textContent = this.monthNames[index];
 
         if (
-          yrOutOfRange
-          || isMinYear && index < this.minMonth
-          || isMaxYear && index > this.maxMonth
+          yrOutOfRange ||
+          (isMinYear && index < this.minMonth) ||
+          (isMaxYear && index > this.maxMonth)
         ) {
-          classList.add('disabled');
+          classList.add("disabled");
         }
         if (range) {
           const [rangeStart, rangeEnd] = range;
           if (index > rangeStart && index < rangeEnd) {
-            classList.add('range');
+            classList.add("range");
           }
           if (index === rangeStart) {
-            classList.add('range-start');
+            classList.add("range-start");
           }
           if (index === rangeEnd) {
-            classList.add('range-end');
+            classList.add("range-end");
           }
         }
         if (selected.includes(index)) {
-          classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-          classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          classList.add(
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white"
+          );
+          classList.remove(
+            "text-gray-900",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         }
         if (index === this.focused) {
-          classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+          classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
         }
 
         if (this.beforeShow) {
@@ -1237,45 +1341,81 @@ var Datepicker = (function () {
     // Update the view UI by applying the changes of selected and focused items
     refresh() {
       const selected = this.selected[this.year] || [];
-      const [rangeStart, rangeEnd] = computeMonthRange(this.range, this.year) || [];
+      const [rangeStart, rangeEnd] =
+        computeMonthRange(this.range, this.year) || [];
       this.grid
-        .querySelectorAll('.range, .range-start, .range-end, .selected, .focused')
+        .querySelectorAll(".range, .range-start, .range-end, .selected, .focused")
         .forEach((el) => {
-          el.classList.remove('range', 'range-start', 'range-end', 'selected', 'bg-blue-700', 'dark:bg-blue-600', 'dark:text-white', 'text-white', 'focused', 'bg-gray-100', 'dark:bg-gray-600');
-          el.classList.add('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          el.classList.remove(
+            "range",
+            "range-start",
+            "range-end",
+            "selected",
+            "bg-blue-700",
+            "dark:bg-blue-600",
+            "dark:text-white",
+            "text-white",
+            "focused",
+            "bg-gray-100",
+            "dark:bg-gray-600"
+          );
+          el.classList.add(
+            "text-gray-900",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         });
       Array.from(this.grid.children).forEach((el, index) => {
         const classList = el.classList;
         if (index > rangeStart && index < rangeEnd) {
-          classList.add('range');
+          classList.add("range");
         }
         if (index === rangeStart) {
-          classList.add('range-start');
+          classList.add("range-start");
         }
         if (index === rangeEnd) {
-          classList.add('range-end');
+          classList.add("range-end");
         }
         if (selected.includes(index)) {
-          classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-          classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          classList.add(
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white"
+          );
+          classList.remove(
+            "text-gray-900",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         }
         if (index === this.focused) {
-          classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+          classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
         }
       });
     }
 
     // Update the view UI by applying the change of focused item
     refreshFocus() {
-      this.grid.querySelectorAll('.focused').forEach((el) => {
-        el.classList.remove('focused', 'bg-gray-100'), 'dark:bg-gray-600';
+      this.grid.querySelectorAll(".focused").forEach((el) => {
+        el.classList.remove("focused", "bg-gray-100");
       });
-      this.grid.children[this.focused].classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+      this.grid.children[this.focused].classList.add(
+        "focused",
+        "bg-gray-100",
+        "dark:bg-gray-600"
+      );
     }
   }
 
   function toTitleCase(word) {
-    return [...word].reduce((str, ch, ix) => str += ix ? ch : ch.toUpperCase(), '');
+    return [...word].reduce(
+      (str, ch, ix) => (str += ix ? ch : ch.toUpperCase()),
+      ""
+    );
   }
 
   // Class representing the years and decades view elements
@@ -1289,14 +1429,20 @@ var Datepicker = (function () {
         this.navStep = this.step * 10;
         this.beforeShowOption = `beforeShow${toTitleCase(this.cellClass)}`;
         this.grid = this.element;
-        this.element.classList.add(this.name, 'datepicker-grid', 'w-64', 'grid', 'grid-cols-4');
-        this.grid.appendChild(parseHTML(createTagRepeat('span', 12)));
+        this.element.classList.add(
+          this.name,
+          "datepicker-grid",
+          "w-64",
+          "grid",
+          "grid-cols-4"
+        );
+        this.grid.appendChild(parseHTML(createTagRepeat("span", 12)));
       }
       super.init(options);
     }
 
     setOptions(options) {
-      if (hasProperty(options, 'minDate')) {
+      if (hasProperty(options, "minDate")) {
         if (options.minDate === undefined) {
           this.minYear = this.minDate = undefined;
         } else {
@@ -1304,7 +1450,7 @@ var Datepicker = (function () {
           this.minDate = dateValue(this.minYear, 0, 1);
         }
       }
-      if (hasProperty(options, 'maxDate')) {
+      if (hasProperty(options, "maxDate")) {
         if (options.maxDate === undefined) {
           this.maxYear = this.maxDate = undefined;
         } else {
@@ -1314,7 +1460,8 @@ var Datepicker = (function () {
       }
       if (options[this.beforeShowOption] !== undefined) {
         const beforeShow = options[this.beforeShowOption];
-        this.beforeShow = typeof beforeShow === 'function' ? beforeShow : undefined;
+        this.beforeShow =
+          typeof beforeShow === "function" ? beforeShow : undefined;
       }
     }
 
@@ -1332,16 +1479,19 @@ var Datepicker = (function () {
 
     // Update view's settings to reflect the selected dates
     updateSelection() {
-      const {dates, rangepicker} = this.picker.datepicker;
+      const { dates } = this.picker.datepicker;
       this.selected = dates.reduce((years, timeValue) => {
         return pushUnique(years, startOfYearPeriod(timeValue, this.step));
       }, []);
-      if (rangepicker && rangepicker.dates) {
-        this.range = rangepicker.dates.map(timeValue => {
-          if (timeValue !== undefined) {
-            return startOfYearPeriod(timeValue, this.step);
-          }
-        });
+
+      if (
+        this.picker.datepicker &&
+        this.picker.datepicker.dates &&
+        this.picker.datepicker.dates.length > 0
+      ) {
+        this.range = this.picker.datepicker.dates;
+      } else {
+        this.range = [];
       }
     }
 
@@ -1357,7 +1507,7 @@ var Datepicker = (function () {
 
       Array.from(this.grid.children).forEach((el, index) => {
         const classList = el.classList;
-        const current = this.start + (index * this.step);
+        const current = this.start + index * this.step;
         const date = dateValue(current, 0, 1);
 
         el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 block flex-1 leading-9 border-0 rounded-lg cursor-pointer text-center text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
@@ -1367,31 +1517,42 @@ var Datepicker = (function () {
         el.textContent = el.dataset.year = current;
 
         if (index === 0) {
-          classList.add('prev');
+          classList.add("prev");
         } else if (index === 11) {
-          classList.add('next');
+          classList.add("next");
         }
         if (current < this.minYear || current > this.maxYear) {
-          classList.add('disabled');
+          classList.add("disabled");
         }
         if (this.range) {
           const [rangeStart, rangeEnd] = this.range;
           if (current > rangeStart && current < rangeEnd) {
-            classList.add('range');
+            classList.add("range");
           }
           if (current === rangeStart) {
-            classList.add('range-start');
+            classList.add("range-start");
           }
           if (current === rangeEnd) {
-            classList.add('range-end');
+            classList.add("range-end");
           }
         }
         if (this.selected.includes(current)) {
-          classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-          classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          classList.add(
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white"
+          );
+          classList.remove(
+            "text-gray-900",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         }
         if (current === this.focused) {
-          classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+          classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
         }
 
         if (this.beforeShow) {
@@ -1404,28 +1565,51 @@ var Datepicker = (function () {
     refresh() {
       const [rangeStart, rangeEnd] = this.range || [];
       this.grid
-        .querySelectorAll('.range, .range-start, .range-end, .selected, .focused')
+        .querySelectorAll(".range, .range-start, .range-end, .selected, .focused")
         .forEach((el) => {
-          el.classList.remove('range', 'range-start', 'range-end', 'selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white', 'focused', 'bg-gray-100', 'dark:bg-gray-600');
+          el.classList.remove(
+            "range",
+            "range-start",
+            "range-end",
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white",
+            "focused",
+            "bg-gray-100",
+            "dark:bg-gray-600"
+          );
         });
       Array.from(this.grid.children).forEach((el) => {
         const current = Number(el.textContent);
         const classList = el.classList;
         if (current > rangeStart && current < rangeEnd) {
-          classList.add('range');
+          classList.add("range");
         }
         if (current === rangeStart) {
-          classList.add('range-start');
+          classList.add("range-start");
         }
         if (current === rangeEnd) {
-          classList.add('range-end');
+          classList.add("range-end");
         }
         if (this.selected.includes(current)) {
-          classList.add('selected', 'bg-blue-700', 'text-white', 'dark:bg-blue-600', 'dark:text-white');
-          classList.remove('text-gray-900', 'hover:bg-gray-100', 'dark:text-white', 'dark:hover:bg-gray-600');
+          classList.add(
+            "selected",
+            "bg-blue-700",
+            "text-white",
+            "dark:bg-blue-600",
+            "dark:text-white"
+          );
+          classList.remove(
+            "text-gray-900",
+            "hover:bg-gray-100",
+            "dark:text-white",
+            "dark:hover:bg-gray-600"
+          );
         }
         if (current === this.focused) {
-          classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+          classList.add("focused", "bg-gray-100", "dark:bg-gray-600");
         }
       });
     }
@@ -1433,10 +1617,14 @@ var Datepicker = (function () {
     // Update the view UI by applying the change of focused item
     refreshFocus() {
       const index = Math.round((this.focused - this.start) / this.step);
-      this.grid.querySelectorAll('.focused').forEach((el) => {
-        el.classList.remove('focused', 'bg-gray-100', 'dark:bg-gray-600');
+      this.grid.querySelectorAll(".focused").forEach((el) => {
+        el.classList.remove("focused", "bg-gray-100", "dark:bg-gray-600");
       });
-      this.grid.children[index].classList.add('focused', 'bg-gray-100', 'dark:bg-gray-600');
+      this.grid.children[index].classList.add(
+        "focused",
+        "bg-gray-100",
+        "dark:bg-gray-600"
+      );
     }
   }
 
@@ -2087,7 +2275,7 @@ var Datepicker = (function () {
 
   function stringifyDates(dates, config) {
     return dates
-      .map(dt => formatDate(dt, config.format, config.locale))
+      .map((dt) => formatDate(dt, config.format, config.locale))
       .join(config.dateDelimiter);
   }
 
@@ -2096,7 +2284,7 @@ var Datepicker = (function () {
   // when origDates (current selection) is passed, the function works to mix
   // the input dates into the current selection
   function processInputDates(datepicker, inputDates, clear = false) {
-    const {config, dates: origDates, rangepicker} = datepicker;
+    const { config, dates: origDates, rangepicker } = datepicker;
     if (inputDates.length === 0) {
       // empty input is considered valid unless origiDates is passed
       return clear ? [] : undefined;
@@ -2114,9 +2302,7 @@ var Datepicker = (function () {
         // is the range-end picker of a rangepicker
         const dt = new Date(date);
         if (config.pickLevel === 1) {
-          date = rangeEnd
-            ? dt.setMonth(dt.getMonth() + 1, 0)
-            : dt.setDate(1);
+          date = rangeEnd ? dt.setMonth(dt.getMonth() + 1, 0) : dt.setDate(1);
         } else {
           date = rangeEnd
             ? dt.setFullYear(dt.getFullYear() + 1, 0, 0)
@@ -2124,10 +2310,10 @@ var Datepicker = (function () {
         }
       }
       if (
-        isInRange(date, config.minDate, config.maxDate)
-        && !dates.includes(date)
-        && !config.datesDisabled.includes(date)
-        && !config.daysOfWeekDisabled.includes(new Date(date).getDay())
+        isInRange(date, config.minDate, config.maxDate) &&
+        !dates.includes(date) &&
+        !config.datesDisabled.includes(date) &&
+        !config.daysOfWeekDisabled.includes(new Date(date).getDay())
       ) {
         dates.push(date);
       }
@@ -2138,12 +2324,15 @@ var Datepicker = (function () {
     }
     if (config.multidate && !clear) {
       // get the synmetric difference between origDates and newDates
-      newDates = newDates.reduce((dates, date) => {
-        if (!origDates.includes(date)) {
-          dates.push(date);
-        }
-        return dates;
-      }, origDates.filter(date => !newDates.includes(date)));
+      newDates = newDates.reduce(
+        (dates, date) => {
+          if (!origDates.includes(date)) {
+            dates.push(date);
+          }
+          return dates;
+        },
+        origDates.filter((date) => !newDates.includes(date))
+      );
     }
     // do length check always because user can input multiple dates regardless of the mode
     return config.maxNumberOfDates && newDates.length > config.maxNumberOfDates
@@ -2154,7 +2343,7 @@ var Datepicker = (function () {
   // refresh the UI elements
   // modes: 1: input only, 2, picker only, 3 both
   function refreshUI(datepicker, mode = 3, quickRender = true) {
-    const {config, picker, inputField} = datepicker;
+    const { config, picker, inputField } = datepicker;
     if (mode & 2) {
       const newView = picker.active ? config.pickLevel : config.startView;
       picker.update().changeView(newView).render(quickRender);
@@ -2165,7 +2354,7 @@ var Datepicker = (function () {
   }
 
   function setDate(datepicker, inputDates, options) {
-    let {clear, render, autohide} = options;
+    let { clear, render, autohide } = options;
     if (render === undefined) {
       render = true;
     }
@@ -2180,9 +2369,16 @@ var Datepicker = (function () {
       return;
     }
     if (newDates.toString() !== datepicker.dates.toString()) {
-      datepicker.dates = newDates;
+      if (datepicker.dates.length === 1 && datepicker.dates[0] < newDates[0]) {
+        datepicker.dates = [...datepicker.dates, ...newDates];
+      } else {
+        if (!clear) {
+          datepicker.dates = newDates;
+        }
+      }
+
       refreshUI(datepicker, render ? 3 : 1);
-      triggerDatepickerEvent(datepicker, 'changeDate');
+      triggerDatepickerEvent(datepicker, "changeDate");
     } else {
       refreshUI(datepicker, 1);
     }
@@ -2208,18 +2404,22 @@ var Datepicker = (function () {
       this.element = element;
 
       // set up config
-      const config = this.config = Object.assign({
-        buttonClass: (options.buttonClass && String(options.buttonClass)) || 'button',
-        container: document.body,
-        defaultViewDate: today(),
-        maxDate: undefined,
-        minDate: undefined,
-      }, processOptions(defaultOptions, this));
+      const config = (this.config = Object.assign(
+        {
+          buttonClass:
+            (options.buttonClass && String(options.buttonClass)) || "button",
+          container: document.body,
+          defaultViewDate: today(),
+          maxDate: undefined,
+          minDate: undefined,
+        },
+        processOptions(defaultOptions, this)
+      ));
       this._options = options;
       Object.assign(config, processOptions(options, this));
 
       // configure by type
-      const inline = this.inline = element.tagName !== 'INPUT';
+      const inline = (this.inline = element.tagName !== "INPUT");
       let inputField;
       let initialDates;
 
@@ -2228,12 +2428,14 @@ var Datepicker = (function () {
         initialDates = stringToArray(element.dataset.date, config.dateDelimiter);
         delete element.dataset.date;
       } else {
-        const container = options.container ? document.querySelector(options.container) : null;
+        const container = options.container
+          ? document.querySelector(options.container)
+          : null;
         if (container) {
           config.container = container;
         }
         inputField = this.inputField = element;
-        inputField.classList.add('datepicker-input');
+        inputField.classList.add("datepicker-input");
         initialDates = stringToArray(inputField.value, config.dateDelimiter);
       }
       if (rangepicker) {
@@ -2241,14 +2443,14 @@ var Datepicker = (function () {
         const index = rangepicker.inputs.indexOf(inputField);
         const datepickers = rangepicker.datepickers;
         if (index < 0 || index > 1 || !Array.isArray(datepickers)) {
-          throw Error('Invalid rangepicker object.');
+          throw Error("Invalid rangepicker object.");
         }
         // attach itaelf to the rangepicker here so that processInputDates() can
         // determine if this is the range-end picker of the rangepicker while
         // setting inital values when pickLevel > 0
         datepickers[index] = this;
         // add getter for rangepicker
-        Object.defineProperty(this, 'rangepicker', {
+        Object.defineProperty(this, "rangepicker", {
           get() {
             return rangepicker;
           },
@@ -2266,7 +2468,7 @@ var Datepicker = (function () {
         inputField.value = stringifyDates(this.dates, config);
       }
 
-      const picker = this.picker = new Picker(this);
+      const picker = (this.picker = new Picker(this));
 
       if (inline) {
         this.show();
@@ -2274,14 +2476,14 @@ var Datepicker = (function () {
         // set up event listeners in other modes
         const onMousedownDocument = onClickOutside.bind(null, this);
         const listeners = [
-          [inputField, 'keydown', onKeydown.bind(null, this)],
-          [inputField, 'focus', onFocus.bind(null, this)],
-          [inputField, 'mousedown', onMousedown.bind(null, this)],
-          [inputField, 'click', onClickInput.bind(null, this)],
-          [inputField, 'paste', onPaste.bind(null, this)],
-          [document, 'mousedown', onMousedownDocument],
-          [document, 'touchstart', onMousedownDocument],
-          [window, 'resize', picker.place.bind(picker)]
+          [inputField, "keydown", onKeydown.bind(null, this)],
+          [inputField, "focus", onFocus.bind(null, this)],
+          [inputField, "mousedown", onMousedown.bind(null, this)],
+          [inputField, "click", onClickInput.bind(null, this)],
+          [inputField, "paste", onPaste.bind(null, this)],
+          [document, "mousedown", onMousedownDocument],
+          [document, "touchstart", onMousedownDocument],
+          [window, "resize", picker.place.bind(picker)],
         ];
         registerListeners(this, listeners);
       }
@@ -2302,7 +2504,7 @@ var Datepicker = (function () {
      * @return {String} formatted date
      */
     static formatDate(date, format, lang) {
-      return formatDate(date, format, lang && locales[lang] || locales.en);
+      return formatDate(date, format, (lang && locales[lang]) || locales.en);
     }
 
     /**
@@ -2321,7 +2523,7 @@ var Datepicker = (function () {
      * @return {Number} time value of parsed date
      */
     static parseDate(dateStr, format, lang) {
-      return parseDate(dateStr, format, lang && locales[lang] || locales.en);
+      return parseDate(dateStr, format, (lang && locales[lang]) || locales.en);
     }
 
     /**
@@ -2398,7 +2600,7 @@ var Datepicker = (function () {
       unregisterListeners(this);
       this.picker.detach();
       if (!this.inline) {
-        this.inputField.classList.remove('datepicker-input');
+        this.inputField.classList.remove("datepicker-input");
       }
       delete this.element.datepicker;
       return this;
@@ -2417,8 +2619,8 @@ var Datepicker = (function () {
      */
     getDate(format = undefined) {
       const callback = format
-        ? date => formatDate(date, format, this.config.locale)
-        : date => new Date(date);
+        ? (date) => formatDate(date, format, this.config.locale)
+        : (date) => new Date(date);
 
       if (this.config.multidate) {
         return this.dates.map(callback);
@@ -2472,10 +2674,10 @@ var Datepicker = (function () {
       const opts = {};
       const lastArg = lastItemOf(args);
       if (
-        typeof lastArg === 'object'
-        && !Array.isArray(lastArg)
-        && !(lastArg instanceof Date)
-        && lastArg
+        typeof lastArg === "object" &&
+        !Array.isArray(lastArg) &&
+        !(lastArg instanceof Date) &&
+        lastArg
       ) {
         Object.assign(opts, dates.pop());
       }
@@ -2499,8 +2701,11 @@ var Datepicker = (function () {
         return;
       }
 
-      const opts = {clear: true, autohide: !!(options && options.autohide)};
-      const inputDates = stringToArray(this.inputField.value, this.config.dateDelimiter);
+      const opts = { clear: true, autohide: !!(options && options.autohide) };
+      const inputDates = stringToArray(
+        this.inputField.value,
+        this.config.dateDelimiter
+      );
       setDate(this, inputDates, opts);
     }
 
@@ -2512,15 +2717,15 @@ var Datepicker = (function () {
      * regardless of its state instead of optimized refresh
      */
     refresh(target = undefined, forceRender = false) {
-      if (target && typeof target !== 'string') {
+      if (target && typeof target !== "string") {
         forceRender = target;
         target = undefined;
       }
 
       let mode;
-      if (target === 'picker') {
+      if (target === "picker") {
         mode = 2;
-      } else if (target === 'input') {
+      } else if (target === "input") {
         mode = 1;
       } else {
         mode = 3;
@@ -2537,7 +2742,7 @@ var Datepicker = (function () {
         return;
       }
       this.editMode = true;
-      this.inputField.classList.add('in-edit', 'border-blue-700');
+      this.inputField.classList.add("in-edit", "border-blue-700");
     }
 
     /**
@@ -2552,9 +2757,9 @@ var Datepicker = (function () {
       if (this.inline || !this.editMode) {
         return;
       }
-      const opts = Object.assign({update: false}, options);
+      const opts = Object.assign({ update: false }, options);
       delete this.editMode;
-      this.inputField.classList.remove('in-edit', 'border-blue-700');
+      this.inputField.classList.remove("in-edit", "border-blue-700");
       if (opts.update) {
         this.update(opts);
       }
@@ -2563,4 +2768,4 @@ var Datepicker = (function () {
 
   return Datepicker;
 
-}());
+})();
